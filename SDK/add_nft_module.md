@@ -9,7 +9,7 @@ By default, **Cosmos SDK v0.46** supports several new [modules](https://docs.cos
 In this document we will explain also how to add the storage for the `NFT` module. Specifically, it shows how to upgrade from a v0.45.x based chain to v0.46 but you could also do it over an existent chain v0.46.
 
 >Note: When you find a piece of code like this, it means that you should add the code to the existent code, in the same way you found:
-```go
+```golang
     ...
     nftmodule.AppModuleBasic{},  // add to the existent list 
     ...   
@@ -29,7 +29,7 @@ Everything that needs to be coded is in app/app.go when the rest of the code is 
 So let's open the `app/app.go` file and code the following!
 
 ### 1) Import keeper and module from the SDK repo:
-```go
+```golang
     minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
     ...
     "github.com/cosmos/cosmos-sdk/x/nft"
@@ -40,21 +40,21 @@ So let's open the `app/app.go` file and code the following!
 ```
 
 ### 2) Add the module to `ModuleBasics = module.NewBasicManager`
-```go
+```golang
     ...
     nftmodule.AppModuleBasic{},
     ...   
 ```
 
 ### 3) Add the module account permissions: `maccPerms`
-```go
+```golang
     ...
     nft.ModuleName: nil,
     ...
 ```
 
 ### 4)Add keeper as type in `App struct`
-```go
+```golang
     ...
     NFTKeeper        nftkeeper.Keeper
     ...
@@ -62,7 +62,7 @@ So let's open the `app/app.go` file and code the following!
 
 ### 5) Add to Storage keys: `keys := sdk.NewKVStoreKeys`
 
-```go
+```golang
     ...
     nftkeeper.StoreKey,
     ...
@@ -70,7 +70,7 @@ So let's open the `app/app.go` file and code the following!
 
 ### 6) Now add to keepers functions this new one:
 Could be placed after the `app.UpgradeKeeper = upgradekeeper.NewKeeper()` in example.
-```go
+```golang
     ...
     app.NFTKeeper = nftkeeper.NewKeeper(
         keys[nftkeeper.StoreKey], 
@@ -82,7 +82,7 @@ Could be placed after the `app.UpgradeKeeper = upgradekeeper.NewKeeper()` in exa
 ```
 
 ### 7) Add to `app.mm = module.NewManager` 
-```go
+```golang
     ...
     nftmodule.NewAppModule(appCodec, app.NFTKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
     ...
@@ -90,7 +90,7 @@ Could be placed after the `app.UpgradeKeeper = upgradekeeper.NewKeeper()` in exa
 
 ### 8) Finally add 3 times in `SetOrderBeginBlockers`, `SetOrderEndBlockers` & `SetOrderInitGenesis`
 
-```go
+```golang
     ...
     nft.ModuleName,
     ...
@@ -99,7 +99,7 @@ Could be placed after the `app.UpgradeKeeper = upgradekeeper.NewKeeper()` in exa
 ## UPGRADE Handler
 Let's write an upgrade handler function that you could call in your code to perform the modules upgrades and module additions. Specifically, you need to set also a new type in the 'Store' (line 14)
 
-```go=
+```golang=
 func (app *App) RegisterUpgradeHandlers() {
 	planName := "wakeandbake"
 	app.UpgradeKeeper.SetUpgradeHandler(planName, func(ctx sdk.Context, plan upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
